@@ -8,6 +8,7 @@ if [[ ! -s output2 ]] ; then
   mkdir output2
 fi
 identifier=output2/AZEP
+moving=${identifier}_pad.nii.gz
 initialaverage=${identifier}_raw_avg.nii.gz
 finalaverage=${identifier}_diff_avg.nii.gz
 if [[ ! -s $initialaverage ]] ; then
@@ -17,12 +18,15 @@ if [[ ! -s $initialaverage ]] ; then
     stackavg=" $stackavg $initialaverage "
   done
   ImageMath 4 $initialaverage TimeSeriesAssemble 1 0 $stackavg
+  padnum=2
+  ImageMath 4 $moving PadImage $fourdimg $padnum
+  ImageMath 4 $initialaverage PadImage $initialaverage $padnum
 fi
-tx=SyN[0.15,5,0.0] # critical parameters (though others matter too)
+tx=SyN[0.15,3,0.0] # critical parameters (though others matter too)
 antsRegistration --dimensionality 4 --float 1 \
       --output   [${identifier}_,${identifier}Warped.nii.gz] \
       --interpolation Linear --use-histogram-matching 1 \
       --winsorize-image-intensities [0.005,0.995] --transform $tx \
-      --metric meansquares[${initialaverage},$fourdimg,1,32] \
+      --metric meansquares[${initialaverage},$moving,1,32] \
       --convergence [15x10,1e-6,4] --shrink-factors 2x1 \
       --smoothing-sigmas 1x0vox --restrict-deformation 1x1x1x0
