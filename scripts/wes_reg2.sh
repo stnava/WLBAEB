@@ -14,7 +14,7 @@ finalaverage=${identifier}_diff_avg.nii.gz
 if [[ ! -s $initialaverage ]] ; then
   antsMotionCorr -d 3 -a  $fourdimg -o $initialaverage
   ImageMath 3 $initialaverage Sharpen $initialaverage
-  ImageMath 3 $initialaverage Sharpen $initialaverage 
+  ImageMath 3 $initialaverage Sharpen $initialaverage
   stackavg=" "
   for x in `seq 1 $hislice` ; do
     stackavg=" $stackavg $initialaverage "
@@ -29,7 +29,7 @@ antsRegistration --dimensionality 4 --float 1 \
       --output   [${identifier}_,${identifier}Warped.nii.gz] \
       --interpolation Linear --use-histogram-matching 1 \
       --winsorize-image-intensities [0.005,0.995] --transform $tx \
-      --metric meansquares[${initialaverage},$moving,1,32] \
+      --metric meansquares[${initialaverage},$moving,1,0,Random,0.1] \
       --convergence [15x10,1e-6,4] --shrink-factors 2x1 \
       --smoothing-sigmas 1x0vox --restrict-deformation 1x1x1x0
 antsMotionCorr -d 3 -a  $fourdimg -o $initialaverage
